@@ -12,10 +12,10 @@ export default function SingleSelector(props: Selectable) {
   return (
     <>
       <label htmlFor={props.id} >{props.name}</label>
-      <select id={props.id} name={props.name.toLocaleLowerCase()} onChange={props.onSelect}>
+      <select id={props.id} name={props.name.toLocaleLowerCase()} onChange={props.onSelect} value={props.selected}>
         {props.selected === '' && <option value="">--Please choose an option--</option>}
         {props.values.map(
-          value => <option value={value} selected={props.selected === value}>{value}</option>
+          value => <option value={value}>{value}</option>
         )}
       </select>
     </>

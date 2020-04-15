@@ -4,12 +4,12 @@ interface TextInput {
   name: string,
   id: string,
   value: string,
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (value: string) => void
 }
 
 export default function TextInput(props: TextInput) {
   return <>
     <label htmlFor={props.id}>{props.name}</label>
-    <input type="text" id={props.id} onChange={props.onChange} value={props.value} />
+    <input type='text' id={props.id} onChange={e => props.onChange(e.currentTarget.value)} value={props.value} />
   </>
 }

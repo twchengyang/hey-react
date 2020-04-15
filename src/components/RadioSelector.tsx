@@ -5,7 +5,7 @@ interface Selectable {
   id: string
   values: Array<string>
   selected: string
-  onSelect: (e: React.FormEvent<HTMLInputElement>) => void
+  onSelect: (value: string) => void
 }
 
 export default function RadioSelector(props: Selectable) {
@@ -15,7 +15,8 @@ export default function RadioSelector(props: Selectable) {
       <div id={props.id}>
         {props.values.map((value: string) => (
           <>
-            <input type="radio" id={value.toLocaleLowerCase()} value={value} onChange={props.onSelect} checked={props.selected === value} />
+            <input type="radio" id={value.toLocaleLowerCase()} value={value}
+             onChange={(e) => props.onSelect(e.currentTarget.value)} checked={props.selected === value} />
             <label htmlFor={value.toLocaleLowerCase()}>{value}</label>
           </>
         ))

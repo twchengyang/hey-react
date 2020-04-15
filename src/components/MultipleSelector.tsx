@@ -5,16 +5,17 @@ interface Selectable {
   id: string
   selected: Array<string>
   values: Array<string>
-  onSelect: (e: React.FormEvent<HTMLSelectElement>) => void
+  onSelect: (value: Array<string>) => void
 }
 
 export default function MultipleSelector(props: Selectable) {
   return (
     <>
       <label htmlFor={props.id}>{props.name}</label>
-      <select id={props.id} name={props.name.toLocaleLowerCase()} multiple onChange={props.onSelect}>
+      <select id={props.id} name={props.name.toLocaleLowerCase()} multiple value={props.selected}
+        onChange={(e) => props.onSelect(Array.from(e.currentTarget.selectedOptions, (item) => item.value))}>
         {props.values.map(
-          value => <option value={value} selected={props.selected.includes(value)}>{value}</option>
+          value => <option key={value} value={value}>{value}</option>
         )}
       </select>
     </>

@@ -11,7 +11,9 @@ type Language = 'Java' | 'C++' | 'C' | 'Javascript' | 'Python'
 
 interface PersonalInfo {
   firstName: string
+  firstNameErr: string
   lastName: string
+  lastNameErr: string
   gender: Gender
   province: string
   cityCandidate: string[]
@@ -20,18 +22,26 @@ interface PersonalInfo {
   languages: Array<Language>
 }
 
+type PersonalInfoKeys = keyof PersonalInfo
+
 export default class CustomForm extends React.Component<{}, PersonalInfo> {
   constructor(props: any) {
     super(props)
-    this.state = { firstName: '', lastName: '', gender: 'male', province: '', cityCandidate: [], city: '', role: '', languages: [] }
+    this.state = { firstName: '', firstNameErr: '', lastName: '', lastNameErr: '', gender: 'male', province: '', cityCandidate: [], city: '', role: '', languages: [] }
   }
 
-  handleFirstNameChange = (e: React.FormEvent<HTMLInputElement>) => this.setState({ firstName: e.currentTarget.value })
-  handleLastNameChange = (e: React.FormEvent<HTMLInputElement>) => this.setState({ lastName: e.currentTarget.value })
-  handleRadioSelect = (e: React.FormEvent<HTMLInputElement>) => this.setState({ gender: e.currentTarget.value as Gender })
-  handleSingleSelect = (e: React.FormEvent<HTMLSelectElement>) => this.setState({ role: e.currentTarget.value as Role })
-  handleMultipleSelect = (e: React.FormEvent<HTMLSelectElement>) =>
-    this.setState({ languages: Array.from(e.currentTarget.selectedOptions, (item) => item.value as Language) })
+  updateState = <T extends any>(key: keyof PersonalInfo, value: T) => (
+    prevState: PersonalInfo
+  ): PersonalInfo => ({
+    ...prevState,
+    [key]: value
+  })
+  handleInputValue<T>(name: keyof PersonalInfo): (v: T) => void {
+    return (value: T) => this.setState(this.updateState(name, value))
+  }
+
+  handleProvinceSelect = (value: string) => this.setState({ province: value, cityCandidate: this.safeGet(this.provinceValues, value), city: '' })
+
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert(`Hello ${this.state.gender === 'male' ? 'Mr' : 'Miss'} ${this.state.firstName} ${this.state.lastName}\n
@@ -39,12 +49,12 @@ Stay at ${this.state.city}, ${this.state.province}\n
 Your role is ${this.state.role}\n
 Your favourite languages are ${this.state.languages}`)
   }
-  handleProvinceSelect = (e: React.FormEvent<HTMLSelectElement>) => this.setState({ province: e.currentTarget.value, cityCandidate: this.safeGet(this.provinceValues, e.currentTarget.value), city: '' })
-  handleCitySelect = (e: React.FormEvent<HTMLSelectElement>) => this.setState({ city: e.currentTarget.value })
+
   genderValues: Gender[] = ['male', 'female']
   roleValues: Role[] = ['Developer', 'Senior Developer', 'Lead Developer', 'Tech Lead']
   languageValues: Language[] = ['Java', 'C++', 'C', 'Javascript', 'Python']
-  provinceValues: Map<string, Array<string>> = new Map([['Shanghai', ['Shanghai']], ['Shaanxi', ['Xi\'an', 'Xianyang', 'Shangluo', 'Ankang']], ['Beijing', ['Beijing', 'Zhongnanhai']]])
+  provinceValues: Map<string, Array<string>> =
+    new Map([['Shanghai', ['Shanghai']], ['Shaanxi', ['Xi\'an', 'Xianyang', 'Shangluo', 'Ankang']], ['Beijing', ['Beijing', 'Zhongnanhai']]])
 
   safeGet(m: Map<string, Array<string>>, key: string): Array<string> {
     const value = this.provinceValues.get(key);
@@ -60,14 +70,15 @@ Your favourite languages are ${this.state.languages}`)
       <div className='custom-form'>
         <h1>Personal Info</h1>
         <form onSubmit={this.handleSubmit} >
-          <TextInput name='First Name' id='fname' onChange={this.handleFirstNameChange} value={this.state.firstName} />
-          <TextInput name='Last Name' id='lname' onChange={this.handleLastNameChange} value={this.state.lastName} />
-          <RadioSelector name='Gender' id='gender' values={this.genderValues} onSelect={this.handleRadioSelect} selected={this.state.gender} />
-          <SingleSelector name='Province' id='province' values={Array.from(this.provinceValues.keys())} onSelect={this.handleProvinceSelect} selected={this.state.province} />
-          <SingleSelector name='City' id='city' values={this.state.cityCandidate} onSelect={this.handleCitySelect} selected={this.state.city} />
-          <SingleSelector name='Role' id='role' values={this.roleValues} onSelect={this.handleSingleSelect} selected={this.state.role} />
+          <TextInput name='First Name' id='fname' onChange={this.handleInputValue('firstName')} value={this.state.firstName} />
+          <TextInput name='Last Name' id='lname' onChange={this.handleInputValue('lastName')} value={this.state.lastName} />
+          <RadioSelector name='Gender' id='gender' values={this.genderValues} onSelect={this.handleInputValue('gender')} selected={this.state.gender} />
+          <SingleSelector name='Province' id='province' values={Array.from(this.provinceValues.keys())}
+            onSelect={this.handleProvinceSelect} selected={this.state.province} />
+          <SingleSelector name='City' id='city' values={this.state.cityCandidate} onSelect={this.handleInputValue('city')} selected={this.state.city} />
+          <SingleSelector name='Role' id='role' values={this.roleValues} onSelect={this.handleInputValue('role')} selected={this.state.role} />
           <MultipleSelector name='Languages' id='language' values={this.languageValues}
-            onSelect={this.handleMultipleSelect} selected={this.state.languages} />
+            onSelect={this.handleInputValue('languages')} selected={this.state.languages} />
           <input type='submit' value='SUBMIT' />
         </form>
       </div>

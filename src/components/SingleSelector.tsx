@@ -5,17 +5,17 @@ interface Selectable {
   id: string
   values: Array<string>
   selected: string
-  onSelect: (e: React.FormEvent<HTMLSelectElement>) => void
+  onSelect: (value: string) => void
 }
 
 export default function SingleSelector(props: Selectable) {
   return (
     <>
       <label htmlFor={props.id} >{props.name}</label>
-      <select id={props.id} name={props.name.toLocaleLowerCase()} onChange={props.onSelect} value={props.selected}>
+      <select id={props.id} name={props.name.toLocaleLowerCase()} onChange={(e) => props.onSelect(e.currentTarget.value)} value={props.selected}>
         {props.selected === '' && <option value="">--Please choose an option--</option>}
         {props.values.map(
-          value => <option value={value}>{value}</option>
+          value => <option key={value} value={value}>{value}</option>
         )}
       </select>
     </>

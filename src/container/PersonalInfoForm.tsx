@@ -65,21 +65,58 @@ Your favourite languages are ${this.state.languages}`)
     }
   }
 
+  updateStateWithError = <T extends any>(key: keyof PersonalInfo, value: T, errKey: keyof PersonalInfo, errValue: string) => (
+    prevState: PersonalInfo
+  ): PersonalInfo => ({
+    ...prevState,
+    [key]: value,
+    [errKey]: errValue
+  })
+  handleInputValueWithError(name: keyof PersonalInfo): (value: string) => void {
+    return (value: string) => this.setState(this.updateStateWithError(name, value, (name + 'Err') as keyof PersonalInfo, this.validName(name, value)));
+  }
+
+  validName = (name: keyof PersonalInfo, value: string) => {
+    if (value.length === 0) {
+      return `${name} is required.`;
+    } else if (!value.match('^[a-zA-Z]+$')) {
+      return `${name} must be alphabetic`;
+    }
+    return '';
+  }
+
+  validAll = () => {
+    return this.state.firstName.length !== 0 &&
+      this.state.firstNameErr.length === 0 &&
+      this.state.lastName.length !== 0 &&
+      this.state.lastNameErr.length === 0 &&
+      this.state.gender.length !== 0 &&
+      this.state.province.length !== 0 &&
+      this.state.city.length !== 0 &&
+      this.state.role.length !== 0 &&
+      this.state.languages.length !== 0
+  }
+
   render() {
     return (
       <div className='custom-form'>
         <h1>Personal Info</h1>
         <form onSubmit={this.handleSubmit} >
-          <TextInput name='First Name' id='fname' onChange={this.handleInputValue('firstName')} value={this.state.firstName} />
-          <TextInput name='Last Name' id='lname' onChange={this.handleInputValue('lastName')} value={this.state.lastName} />
-          <RadioSelector name='Gender' id='gender' values={this.genderValues} onSelect={this.handleInputValue('gender')} selected={this.state.gender} />
+          <TextInput name='First Name' id='fname' value={this.state.firstName}
+            onChange={this.handleInputValueWithError('firstName').bind(this)} error={this.state.firstNameErr} />
+          <TextInput name='Last Name' id='lname' value={this.state.lastName}
+            onChange={this.handleInputValueWithError('lastName').bind(this)} error={this.state.lastNameErr} />
+          <RadioSelector name='Gender' id='gender' values={this.genderValues}
+            onSelect={this.handleInputValue('gender')} selected={this.state.gender} />
           <SingleSelector name='Province' id='province' values={Array.from(this.provinceValues.keys())}
             onSelect={this.handleProvinceSelect} selected={this.state.province} />
-          <SingleSelector name='City' id='city' values={this.state.cityCandidate} onSelect={this.handleInputValue('city')} selected={this.state.city} />
-          <SingleSelector name='Role' id='role' values={this.roleValues} onSelect={this.handleInputValue('role')} selected={this.state.role} />
+          <SingleSelector name='City' id='city' values={this.state.cityCandidate}
+            onSelect={this.handleInputValue('city')} selected={this.state.city} />
+          <SingleSelector name='Role' id='role' values={this.roleValues}
+            onSelect={this.handleInputValue('role')} selected={this.state.role} />
           <MultipleSelector name='Languages' id='language' values={this.languageValues}
             onSelect={this.handleInputValue('languages')} selected={this.state.languages} />
-          <input type='submit' value='SUBMIT' />
+          <input type='submit' value='SUBMIT' disabled={!this.validAll()} />
         </form>
       </div>
     );

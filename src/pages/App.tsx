@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import PersonalInfoForm from './container/PersonalInfoForm';
+import PersonalInfoForm from '../container/PersonalInfoForm';
 
 export default function App() {
   return (

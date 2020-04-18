@@ -9,7 +9,7 @@ type Gender = 'male' | 'female'
 type Role = '' | 'Developer' | 'Senior Developer' | 'Lead Developer' | 'Tech Lead'
 type Language = 'Java' | 'C++' | 'C' | 'Javascript' | 'Python'
 
-interface PersonalInfo {
+export interface PersonalInfo {
   firstName: string
   firstNameErr: string
   lastName: string
@@ -22,9 +22,8 @@ interface PersonalInfo {
   languages: Array<Language>
 }
 
-type PersonalInfoKeys = keyof PersonalInfo
-
 export default class CustomForm extends React.Component<{}, PersonalInfo> {
+
   constructor(props: any) {
     super(props)
     this.state = { firstName: '', firstNameErr: '', lastName: '', lastNameErr: '', gender: 'male', province: '', cityCandidate: [], city: '', role: '', languages: [] }
@@ -44,17 +43,17 @@ export default class CustomForm extends React.Component<{}, PersonalInfo> {
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Hello ${this.state.gender === 'male' ? 'Mr' : 'Miss'} ${this.state.firstName} ${this.state.lastName}\n
-Stay at ${this.state.city}, ${this.state.province}\n
-Your role is ${this.state.role}\n
-Your favourite languages are ${this.state.languages}`)
+    const storedHistory = localStorage.getItem('history');
+    let history: Array<PersonalInfo> = [];
+    if (storedHistory) {
+      const historyArr: Array<PersonalInfo>= JSON.parse(storedHistory)
+      history = historyArr.concat(this.state);
+    } else {
+      history.push(this.state);
+    }
+    localStorage.setItem('history', JSON.stringify(history));
+    window.location.href = '/show';
   }
-
-  genderValues: Gender[] = ['male', 'female']
-  roleValues: Role[] = ['Developer', 'Senior Developer', 'Lead Developer', 'Tech Lead']
-  languageValues: Language[] = ['Java', 'C++', 'C', 'Javascript', 'Python']
-  provinceValues: Map<string, Array<string>> =
-    new Map([['Shanghai', ['Shanghai']], ['Shaanxi', ['Xi\'an', 'Xianyang', 'Shangluo', 'Ankang']], ['Beijing', ['Beijing', 'Zhongnanhai']]])
 
   safeGet(m: Map<string, Array<string>>, key: string): Array<string> {
     const value = this.provinceValues.get(key);
@@ -121,4 +120,10 @@ Your favourite languages are ${this.state.languages}`)
       </div>
     );
   }
+
+  genderValues: Gender[] = ['male', 'female']
+  roleValues: Role[] = ['Developer', 'Senior Developer', 'Lead Developer', 'Tech Lead']
+  languageValues: Language[] = ['Java', 'C++', 'C', 'Javascript', 'Python']
+  provinceValues: Map<string, Array<string>> =
+    new Map([['Shanghai', ['Shanghai']], ['Shaanxi', ['Xi\'an', 'Xianyang', 'Shangluo', 'Ankang']], ['Beijing', ['Beijing', 'Zhongnanhai']]])
 }
